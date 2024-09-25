@@ -1,0 +1,49 @@
+name: Flutter Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ '1.22.x' ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Install mods
+      - run: go mod download
+      - run: go build
+
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Copy Dockerfile to prior building
+        run: cp ./cicd/Dockerfile ./
+      - name: LS
+        run: cat Version > ${{ steps.package-version.outputs.current-version}}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: "./"
+          push: true
+          tags: ifloor/kubeinfocollector:${{ steps.package-version.outputs.current-version}}
