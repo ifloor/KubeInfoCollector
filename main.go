@@ -41,10 +41,17 @@ func main() {
 	var err error
 
 	if *kubeconfig != "" {
+		fmt.Printf("Trying to build configs from path %s\n", *kubeconfig)
 		config, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
+		if err != nil {
+			fmt.Printf("Error when trying to build configs from path %s\n", *kubeconfig)
+			panic(err.Error())
+		}
 	} else {
+		fmt.Printf("Trying to build configs from rest InClusterConfig\n")
 		config, err = rest.InClusterConfig()
 		if err != nil {
+			fmt.Printf("Error when trying to build configs from rest InClusterConfig %s\n", *kubeconfig)
 			panic(err.Error())
 		}
 	}
