@@ -22,7 +22,11 @@ func main() {
 
 	customPath := os.Getenv("KUBECONFIG")
 	var kubeconfig *string
-	if customPath != "" {
+
+	if customPath == "InClusterConfig" {
+		v := ""
+		kubeconfig = &v
+	} else if customPath != "" {
 		kubeconfig = flag.String("kubeconfig", customPath, "(optional) absolute path to the kubeconfig file")
 	} else if home := homedir.HomeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
@@ -31,11 +35,6 @@ func main() {
 	}
 
 	flag.Parse()
-
-	/*config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	if err != nil {
-		panic(err.Error())
-	}*/
 
 	var config *rest.Config
 	var err error
