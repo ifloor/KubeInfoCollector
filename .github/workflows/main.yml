@@ -31,6 +31,8 @@ jobs:
         run: cp ./cicd/Dockerfile ./
       - name: LS
         run: pwd && ls -lah
+      - name: Cat
+        run: cat Version
       - name: Setup version
         run: cat Version > ${{ steps.package-version.outputs.current-version}}
 
