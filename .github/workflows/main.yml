@@ -22,10 +22,6 @@ jobs:
       - name: Build binary
         run: go build
 
-      - name: get-npm-version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@v1.3.1
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -34,6 +30,8 @@ jobs:
       - name: Copy Dockerfile to prior building
         run: cp ./cicd/Dockerfile ./
       - name: LS
+        run: pwd && ls -lah
+      - name: Setup version
         run: cat Version > ${{ steps.package-version.outputs.current-version}}
 
       - name: Login to Docker Hub
