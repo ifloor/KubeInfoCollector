@@ -12,9 +12,11 @@ import (
 	"k8s.io/client-go/util/homedir"
 	"k8s.io/metrics/pkg/apis/metrics/v1beta1"
 	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 func main() {
@@ -78,14 +80,32 @@ func main() {
 
 	reporter := NewMetricsReporter(int(numThreads))
 
+	cycleSeconds := 60
+	cycleSecondsStr := os.Getenv("CYCLE_SECONDS")
+	if cycleSecondsStr != "" {
+		cycleSeconds, err = strconv.Atoi(cycleSecondsStr)
+		if err != nil {
+			fmt.Printf("Error parsing CYCLE_SECONDS: %s\n", err.Error())
+			panic(err.Error())
+		}
+	}
+
 	for {
+		startTime := time.Now()
 		fmt.Println("Running collection cycle")
 		pods := getPods(clientSet)
 
 		metricsData := getMetrics(metricsSet)
 		reporter.RecordMetrics(metricsData, pods)
 
-		break
+		elapsedSeconds := time.Since(startTime).Seconds()
+		neededSleep := cycleSeconds - int(math.Round(elapsedSeconds))
+		if neededSleep > 0 {
+			fmt.Printf("Elapsed %f seconds. Sleeping for %d seconds\n", elapsedSeconds, neededSleep)
+			time.Sleep(time.Duration(neededSleep) * time.Second)
+		} else {
+			fmt.Printf("Cycle took longer than %d seconds. No sleep needed\n", cycleSeconds)
+		}
 	}
 }
 
