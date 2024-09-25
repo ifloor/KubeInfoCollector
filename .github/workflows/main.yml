@@ -18,8 +18,9 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - name: Install mods
-      - run: go mod download
-      - run: go build
+        run: go mod download
+      - name: Build binary
+        run: go build
 
       - name: get-npm-version
         id: package-version
