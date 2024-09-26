@@ -114,7 +114,11 @@ func (m *MetricsReporter) recordNodeMetric(nodeMetric v1beta1.NodeMetrics) {
 
 	nodeInfo := NodeInfo{
 		Timestamp: time.Now().Format(time.RFC3339),
-		Metrics:   nodeMetric,
+		Metadata:  nodeMetric.ObjectMeta,
+		Metrics: NodeMetricsInfo{
+			Cpu:    nodeMetric.Usage.Cpu().AsApproximateFloat64(),
+			Memory: nodeMetric.Usage.Memory().Value(),
+		},
 	}
 
 	m.elasticPoster.PostNode(nodeInfo)
