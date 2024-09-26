@@ -46,7 +46,7 @@ func NewMetricsReporter(threadsNum int) *MetricsReporter {
 	nodePool, _ := ants.NewPoolWithFunc(threadsNum, func(i interface{}) {
 		task := i.(NodeReportingTask)
 		reporter.recordNodeMetric(task.nodeMetrics)
-		reporter.podWg.Done()
+		reporter.nodeWg.Done()
 	})
 	reporter.nodePool = nodePool
 
