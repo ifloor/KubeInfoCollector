@@ -95,8 +95,9 @@ func main() {
 		fmt.Println("Running collection cycle")
 		pods := getPods(clientSet)
 
-		metricsData := getMetrics(metricsSet)
-		reporter.RecordMetrics(metricsData, pods)
+		podMetricsData, nodeMetricsData := getMetrics(metricsSet)
+		reporter.RecordPodMetrics(podMetricsData, pods)
+		reporter.RecordNodeMetrics(nodeMetricsData)
 
 		elapsedSeconds := time.Since(startTime).Seconds()
 		neededSleep := cycleSeconds - int(math.Round(elapsedSeconds))
@@ -119,17 +120,17 @@ func getPods(clientSet *kubernetes.Clientset) []v1.Pod {
 	return pods.Items
 }
 
-func getMetrics(metricsSet *metrics.Clientset) []v1beta1.PodMetrics {
-	//mc.MetricsV1beta1().NodeMetricses().Get("your node name", metav1.GetOptions{})
-	//mc.MetricsV1beta1().NodeMetricses().List(metav1.ListOptions{})
-	//metricsSet.MetricsV1beta1().PodMetricses(metav1.NamespaceAll).List(metav1.ListOptions{})
-	metricsData, err := metricsSet.MetricsV1beta1().PodMetricses(metav1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
-	//mc.MetricsV1beta1().PodMetricses(metav1.NamespaceAll).Get("your pod name", metav1.GetOptions{})
-
+func getMetrics(metricsSet *metrics.Clientset) ([]v1beta1.PodMetrics, []v1beta1.NodeMetrics) {
+	podMetricsData, err := metricsSet.MetricsV1beta1().PodMetricses(metav1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		fmt.Printf("Error getting metrics: %s", err.Error())
+		fmt.Printf("Error getting pod metrics: %s", err.Error())
 		panic(err.Error())
 	}
 
-	return metricsData.Items
+	nodeMetricsData, err := metricsSet.MetricsV1beta1().NodeMetricses().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		fmt.Printf("Error getting node metrics: %s", err.Error())
+		panic(err.Error())
+	}
+	return podMetricsData.Items, nodeMetricsData.Items
 }

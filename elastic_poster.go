@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/olivere/elastic/v7"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/metrics/pkg/apis/metrics/v1beta1"
 	"log"
 	"os"
 )
@@ -31,6 +32,11 @@ type PodMetricsInfo struct {
 	ContainerName string  `json:"containerName"`
 	Cpu           float64 `json:"cpu"`
 	Memory        int64   `json:"memory"`
+}
+
+type NodeInfo struct {
+	Timestamp string              `json:"@timestamp"`
+	Metrics   v1beta1.NodeMetrics `json:"nodeMetrics"`
 }
 
 // CustomPodSpec is a wrapper around v1.PodSpec to omit the startupProbe field
@@ -108,4 +114,17 @@ func (e *ElasticPoster) PostPod(data PodInfo) {
 	}
 
 	fmt.Printf("Successfully posted pod data: %s\n", data.PodName)
+}
+
+func (e *ElasticPoster) PostNode(data NodeInfo) {
+	ctx := context.Background()
+	_, err := e.client.Index().
+		Index("kube-monitoring").
+		BodyJson(data).
+		Do(ctx)
+	if err != nil {
+		log.Printf("Error posting pod data to Elasticsearch: %v", err)
+	}
+
+	fmt.Printf("Successfully posted node data: %s\n", data.Metrics.Name)
 }
