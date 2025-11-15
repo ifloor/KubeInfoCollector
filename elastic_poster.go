@@ -116,7 +116,7 @@ func (e *ElasticPoster) PostPod(data PodInfo) {
 		BodyJson(data).
 		Do(ctx)
 	if err != nil {
-		log.Printf("Error posting pod data to Elasticsearch: %v", err)
+		log.Printf("Error posting pod data to Elasticsearch: %v; Data: %v", err, data)
 	}
 
 	fmt.Printf("Successfully posted pod data: %s\n", data.PodName)
@@ -129,7 +129,7 @@ func (e *ElasticPoster) PostNode(data NodeInfo) {
 		BodyJson(data).
 		Do(ctx)
 	if err != nil {
-		log.Printf("Error posting pod data to Elasticsearch: %v", err)
+		log.Printf("Error posting node data to Elasticsearch: %v; Data: %v", err, data)
 	}
 
 	fmt.Printf("Successfully posted node data: %s\n", data.Metadata.Name)
