@@ -45,7 +45,7 @@ type NodeMetricsInfo struct {
 	Memory int64   `json:"memory"`
 }
 
-// CustomPodSpec is a wrapper around v1.PodSpec to omit the startupProbe field
+// CustomPodSpec is a wrapper around v1.PodSpec to omit the startupProbe, livenessProbe [*] field
 type CustomPodSpec v1.PodSpec
 
 // MarshalJSON omits the startupProbe field from the JSON output
@@ -55,7 +55,8 @@ func (c CustomPodSpec) MarshalJSON() ([]byte, error) {
 		Alias
 		Containers []struct {
 			v1.Container
-			StartupProbe interface{} `json:"startupProbe,omitempty"`
+			StartupProbe  interface{} `json:"startupProbe,omitempty"`
+			LivenessProbe interface{} `json:"livenessProbe,omitempty"`
 		} `json:"containers"`
 	}{
 		Alias: Alias(c),
@@ -64,7 +65,8 @@ func (c CustomPodSpec) MarshalJSON() ([]byte, error) {
 	for _, container := range c.Containers {
 		aux.Containers = append(aux.Containers, struct {
 			v1.Container
-			StartupProbe interface{} `json:"startupProbe,omitempty"`
+			StartupProbe  interface{} `json:"startupProbe,omitempty"`
+			LivenessProbe interface{} `json:"livenessProbe,omitempty"`
 		}{
 			Container: container,
 		})
