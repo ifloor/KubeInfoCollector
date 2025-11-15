@@ -55,8 +55,9 @@ func (c CustomPodSpec) MarshalJSON() ([]byte, error) {
 		Alias
 		Containers []struct {
 			v1.Container
-			StartupProbe  interface{} `json:"startupProbe,omitempty"`
-			LivenessProbe interface{} `json:"livenessProbe,omitempty"`
+			StartupProbe   interface{} `json:"startupProbe,omitempty"`
+			LivenessProbe  interface{} `json:"livenessProbe,omitempty"`
+			ReadinessProbe interface{} `json:"readinessProbe,omitempty"`
 		} `json:"containers"`
 	}{
 		Alias: Alias(c),
@@ -65,8 +66,9 @@ func (c CustomPodSpec) MarshalJSON() ([]byte, error) {
 	for _, container := range c.Containers {
 		aux.Containers = append(aux.Containers, struct {
 			v1.Container
-			StartupProbe  interface{} `json:"startupProbe,omitempty"`
-			LivenessProbe interface{} `json:"livenessProbe,omitempty"`
+			StartupProbe   interface{} `json:"startupProbe,omitempty"`
+			LivenessProbe  interface{} `json:"livenessProbe,omitempty"`
+			ReadinessProbe interface{} `json:"readinessProbe,omitempty"`
 		}{
 			Container: container,
 		})
